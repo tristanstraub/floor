@@ -75,23 +75,17 @@ define(['underscore'], function(_) {
     var s0 = [-1/2,-1/2,-1];
     var s1 = [1,0,0];
     var s2 = [0,1,0];
-    var pw = 1/w;
-    var ph = 1/h;
 
-    var dux = pw;
-    var dvy = -ph;
-    var dus1 = scale3(dux, s1);
-    var dvs2 = scale3(dvy, s2);
-    var ss1 = s0;
-    var ss2;
-    var hphs2 = scale3(h*ph, s2);
+    var s1_w = scale3(1/w, s1);
+    var s2_h = scale3(1/h, s2);
+    var s = 0;
     for(var x = 0; x < w; x++) {
-      ss2 = add3(ss1, hphs2);
+      s = s0;//add3(s0, s2);
       for(var y = 0; y < h; y++) {
-        fn(x, y, ss2);
-        ss2 = add3(ss2, dvs2);
+        fn(x, y, s);
+        s = add3(s, s2_h);
       }
-      ss1 = add3(ss1, dus1);
+      s0 = add3(s0, s1_w);
     }
   };
 
@@ -149,7 +143,7 @@ define(['underscore'], function(_) {
     var clearBuffer = function() {
       // loop2($canvas.width(), $canvas.height(), function(x,y,s) {
       //   var bpos = (y*buffer.width+x)*4;
-        
+      
       //   buffer.data[0+bpos] = 0;
       //   buffer.data[1+bpos] = 0;
       //   buffer.data[2+bpos] = 0;
@@ -165,15 +159,12 @@ define(['underscore'], function(_) {
           window.msRequestAnimationFrame     ||
           null;
 
-    var theta = 0;
+    var theta = Math.PI/2;
 
-    var pw = .5;
-    var ph = .5;
+    var d1 = [1, 0, 0];
+    var d2 = [0, 0, -1];
 
-    var d1 = [pw, 0, 0];
-    var d2 = [0, 0, -ph];
-
-    var p0 = [-.5,-1,-3];
+    var p0 = [-.5,-1,-2];
 
     var game_loop = function () {
       clearBuffer();
@@ -186,29 +177,25 @@ define(['underscore'], function(_) {
       var n = unit3(cross3(dd1,dd2));
       var dotp0n = dot3(p0, n);
 
-      theta += 0.1;
+      theta += 0.05;
 
       var render = function(x,y,s) {
         var k = dotp0n/dot3(s, n);
-        if (k >= 1) {
+        if (k >= 0) {
           var D = diff3(scale3(k, s), p0);
           var dotuv = [dot3(cross3(D, dd2), n), dot3(cross3(D, dd1), n)];
-          // if (0 <= dotuv[0] && dotuv[0] <= magdd1 &&
-          //     0 <= dotuv[1] && dotuv[1] <= magdd2) {
-          if (0 <= dotuv[0] && 
-              0 <= dotuv[1]) {
-            var uv = [dotuv[0]/magdd1 % 1, dotuv[1]/magdd2 % 1];
-            var bpos = (y*buffer.width+x)*4;
-            var tposx = uv[0]*texture.width;
-            var tposy = uv[1]*texture.height;
+          //          if (0 <= dotuv[0] && 0 <= dotuv[1]) {
+          var uv = [(dotuv[0]/magdd1), (dotuv[1]/magdd2)];
+          var bpos = (y*buffer.width+x)*4;
+          var tposx = (uv[0]*(texture.width) | 0) % texture.width;
+          var tposy = (uv[1]*(texture.height) | 0) % texture.height;
+          var tpos = (tposy*texture.width+tposx)*4;
 
-            var tpos = (Math.round(tposy)*texture.width+Math.round(tposx))*4;
-
-            buffer.data[0+bpos] = texture.data[0+tpos];
-            buffer.data[1+bpos] = texture.data[1+tpos];
-            buffer.data[2+bpos] = texture.data[2+tpos];
-            buffer.data[3+bpos] = texture.data[3+tpos];
-          }
+          buffer.data[0+bpos] = texture.data[0+tpos];
+          buffer.data[1+bpos] = texture.data[1+tpos];
+          buffer.data[2+bpos] = texture.data[2+tpos];
+          buffer.data[3+bpos] = texture.data[3+tpos];
+          //          }
         }
       };
 
