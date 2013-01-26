@@ -151,44 +151,69 @@ define(['underscore'], function(_) {
 
     var buffer = ctx.createImageData($canvas.width(), $canvas.height());
 
+    var clearBuffer = function() {
+      loop2($canvas.width(), $canvas.height(), function(x,y,s) {
+        var bpos = (y*buffer.width+x)*4;
+        
+        buffer.data[0+bpos] = 0;
+        buffer.data[1+bpos] = 0;
+        buffer.data[2+bpos] = 0;
+        buffer.data[3+bpos] = 0;
+      });
+    };
+      
+    //    ctx.putImageData(texture, 0,0, 0,0,texture.width,texture.height);
+
+
+    var animFrame = window.requestAnimationFrame ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          window.oRequestAnimationFrame      ||
+          window.msRequestAnimationFrame     ||
+          null;
+
+    var theta = 0;
+
     var pw = .5;
     var ph = .5;
-    var p0 = [-.5,-1,-3];
+
     var d1 = [pw, 0, 0];
-    var d2 = [0, ph, 0];
+    var d2 = [0, 0, -ph];
 
-    var R = axisRotationMatrix3(unit3([1,0,0]), Math.PI/2);
-    console.log(d1,d2);
-    d1 = mat3mulvec3(R, d1);
-    d2 = mat3mulvec3(R, d2);
-    console.log(d1,d2);
+    var p0 = [-.5,-1,-3];
 
-    var p1 = add3(p0, d1);
-    var p2 = add3(p0, d2);
+    var game_loop = function () {
+      clearBuffer();
+      var R = axisRotationMatrix3(unit3([0,1,0]), theta);
+      var dd1 = mat3mulvec3(R, d1);
+      var dd2 = mat3mulvec3(R, d2);
 
-    trace($canvas.width(), $canvas.height(), function(x,y,s) {
+      var p1 = add3(p0, dd1);
+      var p2 = add3(p0, dd2);
 
+      theta += 0.1;
 
+      trace($canvas.width(), $canvas.height(), function(x,y,s) {
+        var uv = intersectPlane(unit3(s), p0, p1, p2);
+        if (0 <= uv[0] && uv[0] <= 1 &&
+            0 <= uv[1] && uv[1] <= 1) {
+          var bpos = (y*buffer.width+x)*4;
+          var tposx = uv[0]*texture.width;
+          var tposy = uv[1]*texture.height;
 
-      var uv = intersectPlane(unit3(s), p0, p1, p2);
-      if (0 <= uv[0] && uv[0] <= 1 &&
-          0 <= uv[1] && uv[1] <= 1) {
-        var bpos = (y*buffer.width+x)*4;
-        var tposx = uv[0]*texture.width;
-        var tposy = uv[1]*texture.height;
+          var tpos = (Math.round(tposy)*texture.width+Math.round(tposx))*4;
 
-        var tpos = (Math.round(tposy)*texture.width+Math.round(tposx))*4;
+          buffer.data[0+bpos] = texture.data[0+tpos];
+          buffer.data[1+bpos] = texture.data[1+tpos];
+          buffer.data[2+bpos] = texture.data[2+tpos];
+          buffer.data[3+bpos] = texture.data[3+tpos];
+        }
+      });
+      ctx.putImageData(buffer, 0,0, 0,0,buffer.width,buffer.height);
 
-        buffer.data[0+bpos] = texture.data[0+tpos];
-        buffer.data[1+bpos] = texture.data[1+tpos];
-        buffer.data[2+bpos] = texture.data[2+tpos];
-        buffer.data[3+bpos] = texture.data[3+tpos];
-      }
-    });
-    ctx.putImageData(buffer, 0,0, 0,0,buffer.width,buffer.height);
-//    ctx.putImageData(texture, 0,0, 0,0,texture.width,texture.height);
-
-    
+      animFrame(game_loop);
+    };
+    game_loop();
   });
   im.src = 'images/basemap.png';
 });
