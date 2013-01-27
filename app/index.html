@@ -15,6 +15,18 @@
     
     <link rel="stylesheet" href="styles/main.css">
     <script src="scripts/vendor/modernizr.min.js"></script>
+    <script type="text/css">
+    canvas, img {
+        image-rendering: optimizeSpeed;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: optimize-contrast;
+        -ms-interpolation-mode: nearest-neighbor;
+        width:848px;
+        height:480px;
+    }
+    </script>
+
   </head>
   <body>
     <canvas width="640" height="480" style="border: 1px solid black;"></canvas>
@@ -24,7 +36,7 @@
 
     <!-- Add your site or application content here -->
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script> -->
     <script>window.jQuery || document.write('<script src="scripts/vendor/jquery.min.js"><\/script>')</script>
       
       

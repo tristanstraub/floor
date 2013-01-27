@@ -19,7 +19,7 @@ define(['underscore'], function(_) {
   var cross3 = function(a,b) {
     return [a[1]*b[2]-a[2]*b[1],
             -(a[0]*b[2]-a[2]*b[0]),
-            -(a[0]*b[1]-a[1]*b[0])];
+            +(a[0]*b[1]-a[1]*b[0])];
   };
 
   var mag3 = function(a) {
@@ -135,7 +135,25 @@ define(['underscore'], function(_) {
   $(im).on('load', function() {
     var ctx = canvas.getContext('2d');
     ctx.drawImage(im,0,0,im.width,im.height,0,0,im.width,im.height);
-    var texture = ctx.getImageData(0,0,im.width,im.height);
+//    var texture = ctx.getImageData(0,0,im.width,im.height);
+   var texture = ctx.createImageData(2, 2);
+    texture.data[0] = 255;
+    texture.data[1] = 255;
+    texture.data[2] = 255;
+    texture.data[3] = 255;
+    texture.data[4] = 0;
+    texture.data[5] = 0;
+    texture.data[6] = 0;
+    texture.data[7] = 255;
+    texture.data[8] = 255;
+    texture.data[9] = 255;
+    texture.data[10] = 255;
+    texture.data[11] = 255;
+    texture.data[12] = 0;
+    texture.data[13] = 0;
+    texture.data[14] = 0;
+    texture.data[15] = 255;
+
     ctx.clearRect(0,0, $canvas.width(), $canvas.height());
 
     var buffer = ctx.createImageData($canvas.width(), $canvas.height());
@@ -159,16 +177,17 @@ define(['underscore'], function(_) {
           window.msRequestAnimationFrame     ||
           null;
 
-    var theta = Math.PI/2;
+    var theta = 0;//Math.PI/2;
 
     var d1 = [1, 0, 0];
-    var d2 = [0, 0, -1];
+    var d2 = [0, 1, 0];
 
-    var p0 = [-.5,-1,-2];
+    var p0 = [0,0,-10];
 
+    var h = $canvas.height();
     var game_loop = function () {
       clearBuffer();
-      var R = axisRotationMatrix3(unit3([0,1,0]), theta);
+      var R = axisRotationMatrix3(unit3([0,0,1]), theta);
       var dd1 = mat3mulvec3(R, d1);
       var dd2 = mat3mulvec3(R, d2);
       var magdd1 = mag3(dd1);
@@ -178,31 +197,34 @@ define(['underscore'], function(_) {
       var dotp0n = dot3(p0, n);
 
       theta += 0.05;
-
       var render = function(x,y,s) {
+        var bpos = ((h-y)*buffer.width+x)*4;
         var k = dotp0n/dot3(s, n);
+        console.log(k,s);
         if (k >= 0) {
           var D = diff3(scale3(k, s), p0);
           var dotuv = [dot3(cross3(D, dd2), n), dot3(cross3(D, dd1), n)];
-          //          if (0 <= dotuv[0] && 0 <= dotuv[1]) {
-          var uv = [(dotuv[0]/magdd1), (dotuv[1]/magdd2)];
-          var bpos = (y*buffer.width+x)*4;
-          var tposx = (uv[0]*(texture.width) | 0) % texture.width;
-          var tposy = (uv[1]*(texture.height) | 0) % texture.height;
-          var tpos = (tposy*texture.width+tposx)*4;
+//          if (Math.abs(dotuv[0]/magdd1) <= .5 && Math.abs(dotuv[1]/magdd2)<=1) {
+            var uv = [(dotuv[0]/magdd1), (dotuv[1]/magdd2)];
 
-          buffer.data[0+bpos] = texture.data[0+tpos];
-          buffer.data[1+bpos] = texture.data[1+tpos];
-          buffer.data[2+bpos] = texture.data[2+tpos];
-          buffer.data[3+bpos] = texture.data[3+tpos];
-          //          }
+            var tposx = ((uv[0]*(texture.width-1) + 0.5) | 0) % texture.width;
+            var tposy = ((uv[1]*(texture.height-1) + 0.5) | 0) % texture.height;
+
+            var tpos = (tposy*texture.width+tposx)*4;
+  
+            buffer.data[0+bpos] = texture.data[0+tpos];
+            buffer.data[1+bpos] = texture.data[1+tpos];
+            buffer.data[2+bpos] = texture.data[2+tpos];
+            buffer.data[3+bpos] = texture.data[3+tpos];
+//          }
         }
       };
+      var w = $canvas.width();
+      var h = $canvas.height();
+      trace(w, h, render);
+      ctx.putImageData(buffer, 0,0);
 
-      trace($canvas.width(), $canvas.height(), render);
-      ctx.putImageData(buffer, 0,0, 0,0,buffer.width,buffer.height);
-
-      animFrame(game_loop);
+//      animFrame(game_loop);
     };
     game_loop();
   });
