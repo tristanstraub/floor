@@ -138,25 +138,25 @@ define(['underscore'], function(_) {
     var texture = ctx.getImageData(0,0,im.width,im.height);
 
     ctx = canvas.getContext('2d');
-   // var texture = ctx.createImageData(2, 2);
-   //  texture.data[0] = 255;
-   //  texture.data[1] = 255;
-   //  texture.data[2] = 255;
-   //  texture.data[3] = 255;
-   //  texture.data[4] = 0;
-   //  texture.data[5] = 0;
-   //  texture.data[6] = 0;
-   //  texture.data[7] = 255;
-   //  texture.data[8] = 255;
-   //  texture.data[9] = 255;
-   //  texture.data[10] = 255;
-   //  texture.data[11] = 255;
-   //  texture.data[12] = 0;
-   //  texture.data[13] = 0;
-   //  texture.data[14] = 0;
-   //  texture.data[15] = 255;
+    // var texture = ctx.createImageData(2, 2);
+    //  texture.data[0] = 255;
+    //  texture.data[1] = 255;
+    //  texture.data[2] = 255;
+    //  texture.data[3] = 255;
+    //  texture.data[4] = 0;
+    //  texture.data[5] = 0;
+    //  texture.data[6] = 0;
+    //  texture.data[7] = 255;
+    //  texture.data[8] = 255;
+    //  texture.data[9] = 255;
+    //  texture.data[10] = 255;
+    //  texture.data[11] = 255;
+    //  texture.data[12] = 0;
+    //  texture.data[13] = 0;
+    //  texture.data[14] = 0;
+    //  texture.data[15] = 255;
 
-//    ctx.clearRect(0,0, $canvas.width(), $canvas.height());
+    //    ctx.clearRect(0,0, $canvas.width(), $canvas.height());
 
     var buffer = ctx.createImageData($canvas.width(), $canvas.height());
 
@@ -205,11 +205,10 @@ define(['underscore'], function(_) {
         if (k >= 0) {
           var D = diff3(scale3(k, s), p0);
           var dotuv = [dot3(cross3(D, dd2), n), dot3(cross3(D, dd1), n)];
-//          if (Math.abs(dotuv[0]/magdd1) <= .5 && Math.abs(dotuv[1]/magdd2)<=1) {
-            var uv = [(dotuv[0]/magdd1), (dotuv[1]/magdd2)];
+          var uv = [(dotuv[0]/magdd1), (dotuv[1]/magdd2)];
 
-            var tposx = ((uv[0]*texture.width + 0.5) | 0);
-            var tposy = ((uv[1]*texture.height + 0.5) | 0);
+          var tposx = ((uv[0]*texture.width + 0.5) | 0);
+          var tposy = ((uv[1]*texture.height + 0.5) | 0);
 
           if (tposx < 0) {
             tposx = (texture.width-1)-((-tposx) % texture.width);
@@ -222,13 +221,12 @@ define(['underscore'], function(_) {
           tposx = tposx % texture.width;
           tposy = tposy % texture.height;
 
-            var tpos = (tposy*texture.width+tposx)*4;
-  
-            buffer.data[0+bpos] = texture.data[0+tpos];
-            buffer.data[1+bpos] = texture.data[1+tpos];
-            buffer.data[2+bpos] = texture.data[2+tpos];
-            buffer.data[3+bpos] = texture.data[3+tpos];
-//          }
+          var tpos = (tposy*texture.width+tposx)*4;
+          
+          buffer.data[0+bpos] = texture.data[0+tpos];
+          buffer.data[1+bpos] = texture.data[1+tpos];
+          buffer.data[2+bpos] = texture.data[2+tpos];
+          buffer.data[3+bpos] = texture.data[3+tpos];
         }
       };
       var w = $canvas.width();
