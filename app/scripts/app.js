@@ -208,13 +208,18 @@ define(['underscore'], function(_) {
 //          if (Math.abs(dotuv[0]/magdd1) <= .5 && Math.abs(dotuv[1]/magdd2)<=1) {
             var uv = [(dotuv[0]/magdd1), (dotuv[1]/magdd2)];
 
-            var tposx = ((uv[0]*texture.width + 0.5) | 0) % texture.width;
+            var tposx = ((uv[0]*texture.width + 0.5) | 0);
             var tposy = ((uv[1]*texture.height + 0.5) | 0);
+
+          if (tposx < 0) {
+            tposx = (texture.width-1)-((-tposx) % texture.width);
+          }
 
           if (tposy < 0) {
             tposy = (texture.height-1)-((-tposy) % texture.height);
           }
 
+          tposx = tposx % texture.width;
           tposy = tposy % texture.height;
 
             var tpos = (tposy*texture.width+tposx)*4;
