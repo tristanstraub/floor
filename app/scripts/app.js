@@ -130,45 +130,59 @@ define(['underscore'], function(_) {
 
   var $canvas = $('#stage');
   var canvas = $('#stage').get(0);
+
+  var texture;
+
+  $(function() {
+    (function() {
+      var pressed = false;
+
+      var canvas = $('#loader');
+      var drawE = function(e) {
+        var offsets = canvas.offset();
+        var x = (e.pageX - offsets.left) | 0;
+        var y = (e.pageY - offsets.top) | 0;
+        
+        var ctx = canvas.get(0).getContext('2d');
+        
+        ctx.beginPath();
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = "#113355";
+        ctx.arc(x,y,10, 0, Math.PI*2, 1);
+        ctx.stroke();
+        ctx.closePath();
+
+        texture = ctx.getImageData(0,0,im.width,im.height);
+      };
+
+      canvas.on("mousedown", function(e) {
+        pressed = true;
+        drawE(e);
+      });
+
+      canvas.on("mouseup", function(e) {
+        pressed = false;
+      });
+
+      canvas.on("mousemove", function(e) {
+        if (pressed) {
+          drawE(e);
+        }
+      });
+    })();
+  });
+
   var ctx;
   var im = new Image();
   $(im).on('load', function() {
     ctx = $('#loader').get(0).getContext('2d');
     ctx.drawImage(im,0,0,im.width,im.height,0,0,im.width,im.height);
-    var texture = ctx.getImageData(0,0,im.width,im.height);
+    texture = ctx.getImageData(0,0,im.width,im.height);
 
     ctx = canvas.getContext('2d');
-    // var texture = ctx.createImageData(2, 2);
-    //  texture.data[0] = 255;
-    //  texture.data[1] = 255;
-    //  texture.data[2] = 255;
-    //  texture.data[3] = 255;
-    //  texture.data[4] = 0;
-    //  texture.data[5] = 0;
-    //  texture.data[6] = 0;
-    //  texture.data[7] = 255;
-    //  texture.data[8] = 255;
-    //  texture.data[9] = 255;
-    //  texture.data[10] = 255;
-    //  texture.data[11] = 255;
-    //  texture.data[12] = 0;
-    //  texture.data[13] = 0;
-    //  texture.data[14] = 0;
-    //  texture.data[15] = 255;
-
-    //    ctx.clearRect(0,0, $canvas.width(), $canvas.height());
-
     var buffer = ctx.createImageData($canvas.width(), $canvas.height());
 
     var clearBuffer = function() {
-      // loop2($canvas.width(), $canvas.height(), function(x,y,s) {
-      //   var bpos = (y*buffer.width+x)*4;
-      
-      //   buffer.data[0+bpos] = 0;
-      //   buffer.data[1+bpos] = 0;
-      //   buffer.data[2+bpos] = 0;
-      //   buffer.data[3+bpos] = 0;
-      // });
       buffer = ctx.createImageData($canvas.width(), $canvas.height());
     };
 
